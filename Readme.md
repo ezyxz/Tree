@@ -230,6 +230,7 @@ public class BinarySearchTree {
 ### 堆的插入
 
 1. 首先找到LastNode, 并将新Node插入下一个节点
+
    - LastNode 是父节点的右节点，则直接插在LastNode的左节点
    - LastNode 是父节点的左节点，若父节点的右节点为空则插入父节点的右节点，否则插入LastNode的左节点
 
@@ -336,29 +337,61 @@ public class Heap2
 	}
 	
 	public int removeMin() {
-		if ( size <= 0 )  { return -1; }
-		int min = viewMin();
-		heap[ROOT_INDEX] = heap[size];
-		heap[size] = 0;
-		int currentIndex = ROOT_INDEX;
-		
-		while(getLeftChildIndex(currentIndex) < size ) {
-			
-		    int minIndex;
-			minIndex  = heap[getLeftChildIndex(currentIndex)] < heap[getRightChildIndex(currentIndex)] ? 
-					getLeftChildIndex(currentIndex) : getRightChildIndex(currentIndex);
-			minIndex = heap[minIndex] < heap[currentIndex] ? minIndex : currentIndex;
-			if(minIndex == currentIndex) break;
-			
-			int temp = heap[minIndex];
-			heap[minIndex] = heap[currentIndex];
+		if ( size() <= 0 )  { return -1; }
+	//record min value, to be returned at end
+	int min = viewMin();
+	heap[ROOT_INDEX] = heap[getLastIndex()];
+	heap[getLastIndex()] = 0;
+	int currentIndex = ROOT_INDEX;
+	count++;
+	
+	while(( getLeftChildIndex(currentIndex) <= size && heap[getLeftChildIndex(currentIndex)] !=0  && heap[getLeftChildIndex(currentIndex)] <  heap[currentIndex]) || 
+			(getRightChildIndex(currentIndex) <= size && heap[getRightChildIndex(currentIndex)] <  heap[currentIndex] && heap[getRightChildIndex(currentIndex)] !=0)) 
+	{
+		int temp;
+		int temp_index;
+		// When it has only left node
+		if(heap[getRightChildIndex(currentIndex)] ==0) {
+			temp = heap[getLeftChildIndex(currentIndex)];
+			temp_index = getLeftChildIndex(currentIndex);
+			heap[getLeftChildIndex(currentIndex)] = heap[currentIndex];
 			heap[currentIndex] = temp;
-			
-			currentIndex = minIndex;
+			count+=3;
+			continue;
+		}
+		// When it has only right node
+		if(heap[getLeftChildIndex(currentIndex)] ==0) {
+			temp = heap[getRightChildIndex(currentIndex)];
+			temp_index = getRightChildIndex(currentIndex);
+			heap[getRightChildIndex(currentIndex)] = heap[currentIndex];
+			heap[currentIndex] = temp;	
+			count+=3;
+			continue;
 		}
 		
-		size--;
-		return min;
+		// Swap the smallest one
+		if( heap[getLeftChildIndex(currentIndex)] < heap[getRightChildIndex(currentIndex)]) {
+			temp = heap[getLeftChildIndex(currentIndex)];
+			temp_index = getLeftChildIndex(currentIndex);
+			heap[getLeftChildIndex(currentIndex)] = heap[currentIndex];
+			heap[currentIndex] = temp;	
+			count+=3;
+			
+		}else {
+			temp = heap[getRightChildIndex(currentIndex)];
+			temp_index = getRightChildIndex(currentIndex);
+			heap[getRightChildIndex(currentIndex)] = heap[currentIndex];
+			heap[currentIndex] = temp;		
+			count+=3;
+			
+		}
+		currentIndex = temp_index;
+		count++;
+	}
+	
+	size--;
+
+	return min;
 	}
 	private int getParentIndex(int currentIndex) {return currentIndex >> 1;}
 	
